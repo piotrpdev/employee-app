@@ -13,6 +13,16 @@ const val prsiPercentage = 0.052
 const val annualBonusAmount = 1450.50
 const val cycleToWorkSchemeMonthlyDeduction = 54.33
 
+fun getFullName() = "${if (gender == "m") "MR." else "MS."} ${firstName.uppercase()} ${surname.uppercase()}"
+
+fun getMonthlySalary() = grossSalary / 12
+fun getMonthlyBonus() = annualBonusAmount / 12
+fun getMonthlyPRSI() = getMonthlySalary() * prsiPercentage
+fun getMonthlyPAYE() = getMonthlySalary() * payePercentage
+fun getGrossMonthlyPay() = getMonthlySalary() + getMonthlyBonus()
+fun getTotalMonthlyDeductions() = getMonthlyPAYE() + getMonthlyPRSI() + cycleToWorkSchemeMonthlyDeduction
+fun getNetMonthlyPay() = getGrossMonthlyPay() - getTotalMonthlyDeductions()
+
 // Taken from https://stackoverflow.com/a/54665180
 fun roundOff(number: Double): Double {
     val df = DecimalFormat("#.##")
@@ -20,25 +30,8 @@ fun roundOff(number: Double): Double {
     return df.format(number).toDouble()
 }
 
-fun getFullName() = "${if (gender == "m") "MR." else "MS."} ${firstName.uppercase()} ${surname.uppercase()}"
-
-fun main(args: Array<String>) {
-    val monthlySalary = grossSalary / 12
-    val bonus = annualBonusAmount / 12
-
-    val paye = monthlySalary * payePercentage
-    val prsi = monthlySalary * prsiPercentage
-
-    val gross = monthlySalary + bonus
-    val deducts = paye + prsi + cycleToWorkSchemeMonthlyDeduction
-    val net = gross - deducts
-
-    printPayslip(monthlySalary, bonus, paye, prsi, gross, deducts, net)
-}
-
-fun printPayslip(monthlySalary: Double, bonus: Double, paye: Double, prsi: Double, gross: Double, deducts: Double, net: Double) {
-    println(
-        """
+fun getPayslip(): String {
+    return """
             ------------------------------------------------------------------
                 Monthly Payslip                         
             __________________________________________________________________
@@ -47,22 +40,25 @@ fun printPayslip(monthlySalary: Double, bonus: Double, paye: Double, prsi: Doubl
             __________________________________________________________________                                           
                PAYMENT DETAILS
             __________________________________________________________________
-                    Salary: ${roundOff(monthlySalary)}
-                    Bonus: ${roundOff(bonus)}
+                    Salary: ${roundOff(getMonthlySalary())}
+                    Bonus: ${roundOff(getMonthlyBonus())}
             __________________________________________________________________                                   
                DEDUCTION DETAILS
             __________________________________________________________________
-                    PAYE: ${roundOff(paye)}
-                    PRSI: ${roundOff(prsi)}
+                    PAYE: ${roundOff(getMonthlyPAYE())}
+                    PRSI: ${roundOff(getMonthlyPRSI())}
                     Cycle To Work: $cycleToWorkSchemeMonthlyDeduction     
             __________________________________________________________________
                 TOTALS
             __________________________________________________________________ 
-                    Gross:  ${roundOff(gross)}
-                    Total Deductions: ${roundOff(deducts)}
+                    Gross:  ${roundOff(getGrossMonthlyPay())}
+                    Total Deductions: ${roundOff(getTotalMonthlyDeductions())}
             __________________________________________________________________
-                    NET PAY: ${roundOff(net)}                        
+                    NET PAY: ${roundOff(getNetMonthlyPay())}                        
             __________________________________________________________________ 
         """.trimIndent()
-    )
+}
+
+fun main(args: Array<String>) {
+    println(getPayslip())
 }
