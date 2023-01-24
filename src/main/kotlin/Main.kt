@@ -31,26 +31,38 @@ fun main(args: Array<String>) {
     val deducts = paye + prsi + cycleToWorkSchemeMonthlyDeduction
     val net = gross - deducts
 
+    printPayslip(monthlySalary, bonus, paye, prsi, gross, deducts, net)
+}
+
+fun printPayslip(monthlySalary: Double, bonus: Double, paye: Double, prsi: Double, gross: Double, deducts: Double, net: Double) {
+    val fullName = "${firstName.uppercase()} ${surname.uppercase()}(${gender.uppercase()})"
+
     println(
         """
-            --------------------------------------------------------------------
-            |                          Monthly Payslip                         |
-            |__________________________________________________________________|
-            |                                                                  |
-            |   Employee Name: $fullName         Employee ID: $employeeId           |
-            |                                                                  |
-            |__________________________________________________________________|
-            |                                                                  |
-            |   PAYMENT DETAILS                    DEDUCTION DETAILS           |
-            |__________________________________________________________________|
-            |   Salary: ${roundOff(monthlySalary)}                     PAYE: ${roundOff(paye)}               |
-            |   Bonus: ${roundOff(bonus)}                      PRSI: ${roundOff(prsi)}                |
-            |                                      Cycle To Work: $cycleToWorkSchemeMonthlyDeduction        |
-            |__________________________________________________________________|
-            |   Gross:  ${roundOff(gross)}                    Total Deductions: ${roundOff(deducts)}   |
-            |__________________________________________________________________|
-            |                          NET PAY: ${roundOff(net)}                        |
-            |__________________________________________________________________| 
+            ------------------------------------------------------------------
+                Monthly Payslip                         
+            __________________________________________________________________
+                    Employee ID: $employeeId                                                               
+                    Employee Name: $fullName                                                            
+            __________________________________________________________________                                           
+               PAYMENT DETAILS
+            __________________________________________________________________
+                    Salary: ${roundOff(monthlySalary)}
+                    Bonus: ${roundOff(bonus)}
+            __________________________________________________________________                                   
+               DEDUCTION DETAILS
+            __________________________________________________________________
+                    PAYE: ${roundOff(paye)}
+                    PRSI: ${roundOff(prsi)}
+                    Cycle To Work: $cycleToWorkSchemeMonthlyDeduction     
+            __________________________________________________________________
+                TOTALS
+            __________________________________________________________________ 
+                    Gross:  ${roundOff(gross)}
+                    Total Deductions: ${roundOff(deducts)}
+            __________________________________________________________________
+                    NET PAY: ${roundOff(net)}                        
+            __________________________________________________________________ 
         """.trimIndent()
     )
 }
