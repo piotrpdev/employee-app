@@ -20,9 +20,9 @@ fun roundOff(number: Double): Double {
     return df.format(number).toDouble()
 }
 
-fun main(args: Array<String>) {
-    val fullName = "${firstName.uppercase()} ${surname.uppercase()}(${gender.uppercase()})"
+fun getFullName() = "${if (gender == "m") "MR." else "MS."} ${firstName.uppercase()} ${surname.uppercase()}"
 
+fun main(args: Array<String>) {
     val monthlySalary = grossSalary / 12
     val bonus = annualBonusAmount / 12
 
@@ -37,15 +37,13 @@ fun main(args: Array<String>) {
 }
 
 fun printPayslip(monthlySalary: Double, bonus: Double, paye: Double, prsi: Double, gross: Double, deducts: Double, net: Double) {
-    val fullName = "${firstName.uppercase()} ${surname.uppercase()}(${gender.uppercase()})"
-
     println(
         """
             ------------------------------------------------------------------
                 Monthly Payslip                         
             __________________________________________________________________
                     Employee ID: $employeeId                                                               
-                    Employee Name: $fullName                                                            
+                    Employee Name: ${getFullName()}                                                            
             __________________________________________________________________                                           
                PAYMENT DETAILS
             __________________________________________________________________
