@@ -1,4 +1,6 @@
-package ie.setu
+package ie.setu.controllers
+
+import ie.setu.models.Employee
 
 var lastId = 0
 

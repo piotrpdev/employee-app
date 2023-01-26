@@ -1,4 +1,4 @@
-package ie.setu
+package ie.setu.models
 
 import java.math.RoundingMode
 import java.text.DecimalFormat
