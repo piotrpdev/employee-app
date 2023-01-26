@@ -1,7 +1,10 @@
 package ie.setu
 
+import mu.KotlinLogging
 import java.math.RoundingMode
 import java.text.DecimalFormat
+
+val logger = KotlinLogging.logger {}
 
 var employees = EmployeeAPI()
 
@@ -76,6 +79,7 @@ fun start() {
     var input: Int
 
     do {
+        logger.info { "Waiting for user to input menu choice" }
         input = menu()
         when (input) {
             1 -> add()
@@ -91,6 +95,9 @@ fun start() {
 }
 
 fun main() {
+    logger.info { "Launching Employee App" }
+    logger.info { "Adding dummy data" }
     dummyData()
+    logger.info { "Starting menu loop" }
     start()
 }
