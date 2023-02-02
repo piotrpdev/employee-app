@@ -6,27 +6,19 @@ import mu.KotlinLogging
 
 val logger = KotlinLogging.logger {}
 
-var employees = EmployeeAPI()
-
-fun menu() : Int {
-    print(""" 
-         |Employee Menu
-         |   1. Add Employee
-         |   2. List All Employees
-         |   3. Search Employees 
-         |   4. Print Payslip for Employee
-         |  -1. Exit
-         |       
-         |Enter Option : """.trimMargin())
-    return readLine()!!.toInt()
+internal fun logWait(string: String) {
+    logger.debug { string }
+    Thread.sleep(50)
 }
 
-fun list(){
+var employees = EmployeeAPI()
+
+fun listEmployees(){
     employees.findAll()
         .forEach{ println(it) }
 }
 
-fun search() {
+fun searchEmployees() {
     val employee = getEmployeeById()
     if (employee == null)
         println("No employee found")
@@ -34,39 +26,66 @@ fun search() {
         println(employee)
 }
 
-fun add() {
+fun generateEmployee(): Employee {
     print("Enter first name: ")
-    val firstName = readLine().toString()
+    val firstName = readlnOrNull().toString()
     print("Enter surname: ")
-    val surname = readLine().toString()
+    val surname = readlnOrNull().toString()
     print("Enter gender (m/f): ")
-    val gender = readLine()!!.toCharArray()[0]
+    val gender = readln().toCharArray()[0]
 //    print("Enter employee ID: ")
 //    val employeeID = readLine()!!.toInt()
     print("Enter gross salary: ")
-    val grossSalary = readLine()!!.toDouble()
+    val grossSalary = readln().toDouble()
     print("Enter PAYE %: ")
-    val payePercentage = readLine()!!.toDouble()
+    val payePercentage = readln().toDouble()
     print("Enter PRSI %: ")
-    val prsiPercentage = readLine()!!.toDouble()
+    val prsiPercentage = readln().toDouble()
     print("Enter Annual Bonus: ")
-    val annualBonus= readLine()!!.toDouble()
+    val annualBonus= readln().toDouble()
     print("Enter Cycle to Work Deduction: ")
-    val cycleToWorkMonthlyDeduction= readLine()!!.toDouble()
+    val cycleToWorkMonthlyDeduction= readln().toDouble()
 
-    employees.create(Employee(firstName, surname, gender, 0, grossSalary, payePercentage, prsiPercentage, annualBonus, cycleToWorkMonthlyDeduction))
+    return Employee(firstName, surname, gender, 0, grossSalary, payePercentage, prsiPercentage, annualBonus, cycleToWorkMonthlyDeduction)
+}
+
+fun addEmployee() {
+    val employee = generateEmployee()
+
+    employees.create(employee)
+}
+
+fun updateEmployee() {
+    print("Enter the employee id: ")
+    val employeeID = readln().toInt()
+    val employee = employees.findOne(employeeID)
+
+    if (employee == null) {
+        println("Employee not found")
+        return
+    }
+
+    val updatedEmployee = generateEmployee()
+
+    employees.update(employeeID, updatedEmployee)
+}
+
+fun deleteEmployee() {
+    TODO("Not yet implemented")
 }
 
 internal fun getEmployeeById(): Employee? {
     print("Enter the employee id to search by: ")
-    val employeeID = readLine()!!.toInt()
+    val employeeID = readln().toInt()
     return employees.findOne(employeeID)
 }
 
 fun paySlip(){
     val employee = getEmployeeById()
-    if (employee != null)
-        println(employee.getPayslip())
+    if (employee != null) {
+        println();
+        println(employee.getNicerPayslip())
+    }
 }
 
 fun dummyData() {
@@ -75,17 +94,40 @@ fun dummyData() {
     employees.create(Employee("Mary", "Quinn", 'f', 0, 75685.41, 40.0, 8.5, 4500.0, 0.0))
 }
 
+fun menu() : Int {
+    print(""" 
+         |Employee Menu
+         |   1. Add Employee
+         |   2. View Employee
+         |   3. Update Employee
+         |   4. Delete Employee
+         |   5. List All Employees
+         |   6. Search Employees 
+         |   7. Print Payslip for Employee
+         |  -1. Exit
+         |       
+         |Enter Option : """.trimMargin())
+    return readln().toInt()
+}
+
 fun start() {
     var input: Int
 
     do {
-        logger.info { "Waiting for user to input menu choice" }
+        logWait("Waiting for user choice")
+
         input = menu()
+
+        logWait("User choice made")
+
         when (input) {
-            1 -> add()
-            2 -> list()
-            3 -> search()
-            4 -> paySlip()
+            1 -> addEmployee()
+            2 -> getEmployeeById()
+            3 -> updateEmployee()
+            4 -> deleteEmployee()
+            5 -> listEmployees()
+            6 -> searchEmployees()
+            7 -> paySlip()
             -99 -> dummyData()
             -1 -> println("Exiting App")
             else -> println("Invalid Option")
@@ -95,9 +137,9 @@ fun start() {
 }
 
 fun main() {
-    logger.info { "Launching Employee App" }
-    logger.info { "Adding dummy data" }
+    logWait("Launching Employee App" )
+    logWait("Adding dummy data" )
     dummyData()
-    logger.info { "Starting menu loop" }
+    logWait("Starting menu loop" )
     start()
 }

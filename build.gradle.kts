@@ -16,6 +16,7 @@ dependencies {
     testImplementation(kotlin("test"))
     implementation("org.slf4j:slf4j-simple:1.7.36")
     implementation("io.github.microutils:kotlin-logging:2.1.23")
+    implementation("com.jakewharton.picnic:picnic:0.6.0")
 }
 
 tasks.test {
