@@ -6,21 +6,15 @@ import com.jakewharton.picnic.TextAlignment
 import java.math.RoundingMode
 import java.text.DecimalFormat
 import com.jakewharton.picnic.table
+import ie.setu.controllers.roundOff
 
-// Taken from https://stackoverflow.com/a/54665180
-fun roundOff(number: Double): String {
-    val df = DecimalFormat("#.00")
-    df.roundingMode = RoundingMode.HALF_UP
-    return df.format(number)
-}
-
-class Employee(
-    private var firstName: String, private var surname: String, private var gender: Char, var employeeID: Int,
-    private var grossSalary: Double, private var payePercentage: Double, private var prsiPercentage: Double,
-    private var annualBonus: Double, private var cycleToWorkSchemeMonthlyDeduction: Double
+data class Employee(
+    val firstName: String, val surname: String, val gender: Char, var employeeID: Int,
+    val grossSalary: Double, val payePercentage: Double, val prsiPercentage: Double,
+    val annualBonus: Double, val cycleToWorkSchemeMonthlyDeduction: Double
 ) {
 
-    private fun getFullName(): String {
+    fun getFullName(): String {
         val fullName = "$firstName $surname"
 
         return when (gender) {
@@ -38,11 +32,10 @@ class Employee(
     private fun getTotalMonthlyDeductions() = getMonthlyPAYE() + getMonthlyPRSI() + cycleToWorkSchemeMonthlyDeduction
     private fun getNetMonthlyPay() = getGrossMonthlyPay() - getTotalMonthlyDeductions()
 
+    private fun getTotalYearlyDeductions() = grossSalary * (payePercentage / 100) + grossSalary * (prsiPercentage / 100) + cycleToWorkSchemeMonthlyDeduction * 12
+
     fun getNicerPayslip(): Table {
         return table {
-            style {
-                borderStyle = BorderStyle.Hidden
-            }
             cellStyle {
                 alignment = TextAlignment.MiddleRight
                 paddingLeft = 1
@@ -51,12 +44,19 @@ class Employee(
                 borderRight = true
             }
             header {
-                cellStyle {
-                    border = true
-                    alignment = TextAlignment.BottomLeft
+                row {
+                    cell("Monthly Payslip") {
+                        columnSpan = 5
+                        alignment = TextAlignment.MiddleCenter
+                        border = true
+                    }
                 }
                 row {
-                    cell("Name") {
+                    cellStyle {
+                        border = true
+                        alignment = TextAlignment.BottomLeft
+                    }
+                    cell("Employee") {
                         alignment = TextAlignment.MiddleCenter
                     }
                     cell("Income") {
@@ -71,10 +71,14 @@ class Employee(
             }
             body {
                 row {
-                    cell("${getFullName()} (ID: ${employeeID})") {
+                    cell("${getFullName()} (ID: $employeeID)") {
                         rowSpan = 3
+                        paddingLeft = 2
+                        paddingRight = 2
                     }
-                    cell("Salary") {}
+                    cell("Salary") {
+                        paddingLeft = 3
+                    }
                     cell(roundOff(getMonthlySalary())) {}
                     cell("PAYE") {}
                     cell(roundOff(getMonthlyPAYE())) {}
@@ -88,7 +92,9 @@ class Employee(
                 row {
                     cell("") {}
                     cell("") {}
-                    cell("Cycle To Work") {}
+                    cell("Cycle To Work") {
+                        paddingLeft = 3
+                    }
                     cell(roundOff(cycleToWorkSchemeMonthlyDeduction)) {}
                 }
                 row {
@@ -123,29 +129,102 @@ class Employee(
         }
     }
 
-    fun getPayslip(): String {
-        return """
-            ------------------------------------------------------------------
-               Monthly Payslip for ${getFullName()} (ID: ${employeeID})               
-            __________________________________________________________________ 
-               PAYMENT DETAILS (TOTAL: ${roundOff(getGrossMonthlyPay())})
-            __________________________________________________________________
-                    Salary: ${roundOff(getMonthlySalary())}
-                    Bonus: ${roundOff(getMonthlyBonus())}
-            __________________________________________________________________                                   
-               DEDUCTION DETAILS (TOTAL: ${roundOff(getTotalMonthlyDeductions())})
-            __________________________________________________________________
-                    PAYE: ${roundOff(getMonthlyPAYE())}
-                    PRSI: ${roundOff(getMonthlyPRSI())}
-                    Cycle To Work: $cycleToWorkSchemeMonthlyDeduction
-            __________________________________________________________________
-                NET PAY: ${roundOff(getNetMonthlyPay())}                        
-            __________________________________________________________________ 
-        """.trimIndent()
-    }
-
     override fun toString(): String {
         return "Employee(firstName='$firstName', surname='$surname', gender=$gender, employeeID=$employeeID, grossSalary=$grossSalary, payePercentage=$payePercentage, prsiPercentage=$prsiPercentage, annualBonus=$annualBonus, cycleToWorkSchemeMonthlyDeduction=$cycleToWorkSchemeMonthlyDeduction)"
     }
 
+    fun getYearlyInfo(): Table {
+        return table {
+            cellStyle {
+                alignment = TextAlignment.MiddleRight
+                paddingLeft = 1
+                paddingRight = 1
+                borderLeft = true
+                borderRight = true
+            }
+            header {
+                row {
+                    cell("Yearly Information") {
+                        columnSpan = 5
+                        alignment = TextAlignment.MiddleCenter
+                        border = true
+                    }
+                }
+                row {
+                    cellStyle {
+                        border = true
+                        alignment = TextAlignment.BottomLeft
+                    }
+                    cell("Employee") {
+                        alignment = TextAlignment.MiddleCenter
+                    }
+                    cell("Income") {
+                        columnSpan = 2
+                        alignment = TextAlignment.MiddleCenter
+                    }
+                    cell("Deductions") {
+                        columnSpan = 2
+                        alignment = TextAlignment.MiddleCenter
+                    }
+                }
+            }
+            body {
+                row {
+                    cell("${getFullName()} (ID: $employeeID)") {
+                        rowSpan = 3
+                        paddingLeft = 2
+                        paddingRight = 2
+                    }
+                    cell("Salary") {
+                        paddingLeft = 3
+                    }
+                    cell(roundOff(grossSalary)) {}
+                    cell("PAYE") {}
+                    cell(roundOff(payePercentage) + "%") {}
+                }
+                row {
+                    cell("Bonus") {}
+                    cell(roundOff(annualBonus)) {}
+                    cell("PRSI") {}
+                    cell(roundOff(prsiPercentage) + "%") {}
+                }
+                row {
+                    cell("") {}
+                    cell("") {}
+                    cell("Cycle To Work") {
+                        paddingLeft = 3
+                    }
+                    cell(roundOff(cycleToWorkSchemeMonthlyDeduction * 12)) {}
+                }
+                row {
+                    cell("") {}
+                    cell("") {}
+                    cell("") {}
+                    cell("") {}
+                    cell("") {}
+                }
+            }
+            footer {
+                cellStyle {
+                    border = true
+                }
+                row {
+                    cell("Total") {
+                        columnSpan = 2
+                        alignment = TextAlignment.MiddleCenter
+                    }
+                    cell(roundOff(grossSalary + annualBonus)) {}
+                    cell("") {}
+                    cell(roundOff(getTotalYearlyDeductions())) {}
+                }
+                row {
+                    cell("Net Pay") {
+                        columnSpan = 4
+                        alignment = TextAlignment.MiddleCenter
+                    }
+                    cell(roundOff((grossSalary + annualBonus) - getTotalYearlyDeductions())) {}
+                }
+            }
+        }
+    }
 }

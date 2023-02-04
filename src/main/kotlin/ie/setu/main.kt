@@ -1,5 +1,9 @@
 package ie.setu
 
+import com.jakewharton.picnic.TextAlignment
+import com.jakewharton.picnic.TextBorder
+import com.jakewharton.picnic.renderText
+import com.jakewharton.picnic.table
 import ie.setu.controllers.EmployeeAPI
 import ie.setu.models.Employee
 import mu.KotlinLogging
@@ -14,37 +18,73 @@ internal fun logWait(string: String) {
 var employees = EmployeeAPI()
 
 fun listEmployees(){
-    employees.findAll()
-        .forEach{ println(it) }
+    println(employees.generateAllEmployeesTable().renderText(border=TextBorder.ROUNDED))
 }
 
 fun searchEmployees() {
     val employee = getEmployeeById()
     if (employee == null)
-        println("No employee found")
+        println("No employee found with that ID.")
     else
-        println(employee)
+        println(employees.generateEmployeeTable(employee).renderText(border=TextBorder.ROUNDED))
 }
 
 fun generateEmployee(): Employee {
     print("Enter first name: ")
-    val firstName = readlnOrNull().toString()
+    var firstName = readlnOrNull().toString()
+    while (firstName.isBlank()) {
+        println("Error: first name cannot be empty. Please enter a valid first name.")
+        firstName = readlnOrNull().toString()
+    }
+
     print("Enter surname: ")
-    val surname = readlnOrNull().toString()
+    var surname = readlnOrNull().toString()
+    while (surname.isBlank()) {
+        println("Error: surname cannot be empty. Please enter a valid surname.")
+        surname = readlnOrNull().toString()
+    }
+
     print("Enter gender (m/f): ")
-    val gender = readln().toCharArray()[0]
-//    print("Enter employee ID: ")
-//    val employeeID = readLine()!!.toInt()
+    var gender = readln().toCharArray().getOrNull(0)
+    while (gender != 'm' && gender != 'f') {
+        println("Error: gender must be either 'm' or 'f'. Please enter a valid gender.")
+        gender = readln().toCharArray()[0]
+    }
+
     print("Enter gross salary: ")
-    val grossSalary = readln().toDouble()
+    var grossSalary = readln().toDoubleOrNull()
+    while (grossSalary == null) {
+        println("Error: gross salary must be a valid number. Please enter a valid gross salary.")
+        grossSalary = readln().toDoubleOrNull()
+    }
+
     print("Enter PAYE %: ")
-    val payePercentage = readln().toDouble()
+    var payePercentage = readln().toDoubleOrNull()
+    while (payePercentage == null || payePercentage < 0 || payePercentage > 100) {
+        println("Error: PAYE must be a valid number between 0 and 100. Please enter a valid PAYE.")
+        payePercentage = readln().toDoubleOrNull()
+    }
+
     print("Enter PRSI %: ")
-    val prsiPercentage = readln().toDouble()
+    var prsiPercentage = readln().toDoubleOrNull()
+    while (prsiPercentage == null || prsiPercentage < 0 || prsiPercentage > 100) {
+        println("Error: PRSI must be a valid number between 0 and 100. Please enter a valid PRSI.")
+        prsiPercentage = readln().toDoubleOrNull()
+    }
+
     print("Enter Annual Bonus: ")
-    val annualBonus= readln().toDouble()
+    var annualBonus = readln().toDoubleOrNull()
+    while (annualBonus == null) {
+        println("Error: annual bonus must be a valid number. Please enter a valid annual bonus.")
+        annualBonus = readln().toDoubleOrNull()
+    }
+
     print("Enter Cycle to Work Deduction: ")
-    val cycleToWorkMonthlyDeduction= readln().toDouble()
+    var cycleToWorkMonthlyDeduction = readln().toDoubleOrNull()
+    while (cycleToWorkMonthlyDeduction == null) {
+        println("Error: cycle to work monthly deduction must be a valid number. Please enter a valid cycle to work monthly deduction.")
+        cycleToWorkMonthlyDeduction = readln().toDoubleOrNull()
+    }
 
     return Employee(firstName, surname, gender, 0, grossSalary, payePercentage, prsiPercentage, annualBonus, cycleToWorkMonthlyDeduction)
 }
@@ -53,30 +93,61 @@ fun addEmployee() {
     val employee = generateEmployee()
 
     employees.create(employee)
+    println("\nThe following employee was added successfully:\n")
+    println(employees.generateEmployeeTable(employee).renderText(border=TextBorder.ROUNDED))
 }
 
 fun updateEmployee() {
-    print("Enter the employee id: ")
-    val employeeID = readln().toInt()
+    print("Enter the employee id to search by: ")
+    var employeeID = readln().toIntOrNull()
+    while (employeeID == null) {
+        println("Error: employee id must be a valid number. Please enter a valid employee id.")
+        employeeID = readln().toIntOrNull()
+    }
+
     val employee = employees.findOne(employeeID)
 
     if (employee == null) {
-        println("Employee not found")
+        println("Employee not found with that ID.")
         return
     }
 
     val updatedEmployee = generateEmployee()
+    updatedEmployee.employeeID = employee.employeeID
 
     employees.update(employeeID, updatedEmployee)
+    println("\nThe following employee was updated successfully:\n")
+    println(employees.generateEmployeeTable(updatedEmployee).renderText(border=TextBorder.ROUNDED))
 }
 
 fun deleteEmployee() {
-    TODO("Not yet implemented")
+    print("Enter the employee id to search by: ")
+    var employeeID = readln().toIntOrNull()
+    while (employeeID == null) {
+        println("Error: employee id must be a valid number. Please enter a valid employee id.")
+        employeeID = readln().toIntOrNull()
+    }
+
+    val employee = employees.findOne(employeeID)
+
+    if (employee == null) {
+        println("Employee not found with that ID.")
+        return
+    }
+
+    employees.delete(employeeID)
+    println("\nThe following employee was deleted successfully:\n")
+    println(employees.generateEmployeeTable(employee).renderText(border=TextBorder.ROUNDED))
 }
 
 internal fun getEmployeeById(): Employee? {
     print("Enter the employee id to search by: ")
-    val employeeID = readln().toInt()
+    var employeeID = readln().toIntOrNull()
+    while (employeeID == null) {
+        println("Error: employee id must be a valid number. Please enter a valid employee id.")
+        employeeID = readln().toIntOrNull()
+    }
+
     return employees.findOne(employeeID)
 }
 
@@ -84,7 +155,7 @@ fun paySlip(){
     val employee = getEmployeeById()
     if (employee != null) {
         println();
-        println(employee.getNicerPayslip())
+        println(employee.getNicerPayslip().renderText(border=TextBorder.ROUNDED))
     }
 }
 
@@ -95,18 +166,64 @@ fun dummyData() {
 }
 
 fun menu() : Int {
-    print(""" 
-         |Employee Menu
-         |   1. Add Employee
-         |   2. View Employee
-         |   3. Update Employee
-         |   4. Delete Employee
-         |   5. List All Employees
-         |   6. Search Employees 
-         |   7. Print Payslip for Employee
-         |  -1. Exit
-         |       
-         |Enter Option : """.trimMargin())
+    println(table {
+        cellStyle {
+            alignment = TextAlignment.MiddleRight
+            paddingLeft = 1
+            paddingRight = 1
+            borderLeft = true
+            borderRight = true
+        }
+        header {
+            row {
+                cell("Employee Menu") {
+                    columnSpan = 2
+                    alignment = TextAlignment.MiddleCenter
+                    border = true
+                }
+            }
+        }
+        body {
+            row {
+                cell("1")
+                cell("Add Employee")
+            }
+            row {
+                cell("2")
+                cell("View Employee")
+            }
+            row {
+                cell("3")
+                cell("Update Employee")
+            }
+            row {
+                cell("4")
+                cell("Delete Employee")
+            }
+            row {
+                cell("5")
+                cell("List All Employees")
+            }
+            row {
+                cell("6")
+                cell("Print Payslip for Employee")
+                cellStyle {
+                    borderBottom = true
+                }
+            }
+        }
+        footer {
+            row {
+                cell("-1")
+                cell("Exit")
+                cellStyle {
+                    borderBottom = true
+                }
+            }
+        }
+    }.renderText(border=TextBorder.ROUNDED))
+
+    print("\nEnter Option: ")
     return readln().toInt()
 }
 
@@ -117,17 +234,17 @@ fun start() {
         logWait("Waiting for user choice")
 
         input = menu()
+        println()
 
         logWait("User choice made")
 
         when (input) {
             1 -> addEmployee()
-            2 -> getEmployeeById()
+            2 -> searchEmployees()
             3 -> updateEmployee()
             4 -> deleteEmployee()
             5 -> listEmployees()
-            6 -> searchEmployees()
-            7 -> paySlip()
+            6 -> paySlip()
             -99 -> dummyData()
             -1 -> println("Exiting App")
             else -> println("Invalid Option")
@@ -140,6 +257,10 @@ fun main() {
     logWait("Launching Employee App" )
     logWait("Adding dummy data" )
     dummyData()
+
     logWait("Starting menu loop" )
     start()
+
+//    println()
+//    println(employees.findOne(0)?.getNicerToString()?.renderText(border= TextBorder.ROUNDED))
 }
