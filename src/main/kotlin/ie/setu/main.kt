@@ -18,7 +18,7 @@ fun listEmployees(){
     println(employees.generateAllEmployeesTable().renderText(border=TextBorder.ROUNDED))
 }
 
-fun searchEmployees() {
+fun viewEmployee() {
     logger.debug { "Searching for employees" }
 
     getEmployeeById() ?: return
@@ -175,10 +175,13 @@ internal fun getEmployeeById(): Employee? {
 
     // TODO: Test this
     if (employee == null) {
+        logger.debug { "Employee not found with id $employeeID" }
         println("Employee not found with that ID.")
         return null
     }
 
+    logger.debug { "Employee found: $employee" }
+    logger.debug { "Displaying employee" }
     println("\nThe following employee was found:")
     println(employees.generateEmployeeTable(employee).renderText(border=TextBorder.ROUNDED))
 
@@ -190,7 +193,7 @@ fun paySlip(){
     val employee = getEmployeeById() ?: return
 
     println()
-    logger.debug { "Displaying payslip for employee $employee" }
+    logger.debug { "Displaying payslip" }
     println("Here is their payslip:")
     println(employee.getNicerPayslip().renderText(border=TextBorder.ROUNDED))
 }
@@ -278,9 +281,11 @@ fun start() {
 
         logger.debug {"User choice made"}
 
+        // TODO: Add way to view and delete in bulk
+        // TODO: Add sorting, filtering, and searching
         when (input) {
             1 -> addEmployee()
-            2 -> searchEmployees()
+            2 -> viewEmployee()
             3 -> updateEmployee()
             4 -> deleteEmployee()
             5 -> listEmployees()
@@ -291,9 +296,12 @@ fun start() {
         }
         println()
     } while (input != -1)
+
+    logger.info {"Exiting Employee App"}
 }
 
 fun main() {
+    // TODO: Finalize README
     logger.info {"Launching Employee App"}
     dummyData()
 

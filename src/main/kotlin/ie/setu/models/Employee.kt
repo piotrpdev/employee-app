@@ -8,6 +8,7 @@ import java.text.DecimalFormat
 import com.jakewharton.picnic.table
 import ie.setu.controllers.roundOff
 
+// TODO: Maybe add timestamps e.g. when the employee was created, last updated, etc.
 data class Employee(
     val firstName: String, val surname: String, val gender: Char, var employeeID: Int,
     val grossSalary: Double, val payePercentage: Double, val prsiPercentage: Double,
