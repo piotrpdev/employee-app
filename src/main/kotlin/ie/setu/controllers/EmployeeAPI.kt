@@ -21,11 +21,6 @@ internal fun getId(): Int {
     return lastId++
 }
 
-internal fun logWait(string: String) {
-    logger.debug { string }
-    Thread.sleep(50)
-}
-
 class EmployeeAPI {
 
     private val employees = ArrayList<Employee>()
@@ -33,17 +28,17 @@ class EmployeeAPI {
     fun create(employee: Employee) {
         employee.employeeID = getId()
         employees.add(employee)
-        logWait("Employee created (ID: ${employee.employeeID})")
+        logger.debug {"Employee created (ID: ${employee.employeeID})"}
     }
 
     fun update(id: Int, updatedEmployee: Employee) {
         employees.replaceAll { if (it.employeeID == id) updatedEmployee else it }
-        logWait("Employee updated (ID: $id)")
+        logger.debug {"Employee updated (ID: $id)"}
     }
 
     fun delete(id: Int) {
         employees.removeIf { it.employeeID == id }
-        logWait("Employee deleted (ID: $id)")
+        logger.debug {"Employee deleted (ID: $id)"}
     }
 
     fun findAll(): List<Employee> {
