@@ -31,6 +31,8 @@ Clone the project
 
 Run `main.kt` in IntelliJ IDEA
 
+> Run with `-Dorg.slf4j.simpleLogger.defaultLogLevel=DEBUG` to enable debug logs
+
 ## Authors
 
 - [@piotrpdev](https://www.github.com/piotrpdev)

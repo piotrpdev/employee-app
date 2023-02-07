@@ -23,20 +23,21 @@ fun formatDate(date: LocalDateTime): String {
     return DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM).format(date)
 }
 
-var lastId = 0
-
-internal fun getId(): Int {
-    return lastId++
-}
-
 class EmployeeAPI {
+
+    var lastId = 0
+
+    private fun getId(): Int {
+        return lastId++
+    }
 
     private var employees = ArrayList<Employee>()
 
-    fun create(employee: Employee) {
+    fun create(employee: Employee): Int {
         employee.employeeID = getId()
         employees.add(employee)
         logger.debug {"Employee created (ID: ${employee.employeeID})"}
+        return employee.employeeID
     }
 
     fun update(id: Int, updatedEmployee: Employee) {
@@ -187,6 +188,7 @@ class EmployeeAPI {
 
             @Suppress("UNCHECKED_CAST") // If the file exists, it should be an ArrayList<Employee>. If not, malicious intent is the probable cause.
             employees = obj as ArrayList<Employee>
+            lastId = employees.size
 
             file.close()
 

@@ -337,10 +337,10 @@ fun addEmployee() {
     val employee = generateEmployee()
 
     logger.debug { "Adding employee: $employee" }
-    employees.create(employee)
+    val newEmployeeId = employees.create(employee)
 
     println("\nThe following employee was added successfully:\n")
-    println(employees.generateEmployeeTable(employee).renderText(border=TextBorder.ROUNDED))
+    println(employees.generateEmployeeTable(employees.findOne(newEmployeeId) ?: employee).renderText(border=TextBorder.ROUNDED))
 }
 
 fun viewEmployee() {
