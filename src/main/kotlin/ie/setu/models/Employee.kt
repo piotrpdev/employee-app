@@ -7,13 +7,14 @@ import java.math.RoundingMode
 import java.text.DecimalFormat
 import com.jakewharton.picnic.table
 import ie.setu.controllers.roundOff
+import java.io.Serializable
+import java.time.LocalDateTime
 
-// TODO: Maybe add timestamps e.g. when the employee was created, last updated, etc.
 data class Employee(
     val firstName: String, val surname: String, val gender: Char, var employeeID: Int,
     val grossSalary: Double, val payePercentage: Double, val prsiPercentage: Double,
-    val annualBonus: Double, val cycleToWorkSchemeMonthlyDeduction: Double
-) {
+    val annualBonus: Double, val cycleToWorkSchemeMonthlyDeduction: Double, var updatedAt: LocalDateTime = LocalDateTime.now(), var createdAt: LocalDateTime = LocalDateTime.now()
+): Serializable {
 
     fun getFullName(): String {
         val fullName = "$firstName $surname"
@@ -131,7 +132,7 @@ data class Employee(
     }
 
     override fun toString(): String {
-        return "Employee(firstName='$firstName', surname='$surname', gender=$gender, employeeID=$employeeID, grossSalary=$grossSalary, payePercentage=$payePercentage, prsiPercentage=$prsiPercentage, annualBonus=$annualBonus, cycleToWorkSchemeMonthlyDeduction=$cycleToWorkSchemeMonthlyDeduction)"
+        return "Employee(firstName='$firstName', surname='$surname', gender=$gender, employeeID=$employeeID, grossSalary=$grossSalary, payePercentage=$payePercentage, prsiPercentage=$prsiPercentage, annualBonus=$annualBonus, cycleToWorkSchemeMonthlyDeduction=$cycleToWorkSchemeMonthlyDeduction), updatedAt=$updatedAt, createdAt=$createdAt"
     }
 
     fun getYearlyInfo(): Table {

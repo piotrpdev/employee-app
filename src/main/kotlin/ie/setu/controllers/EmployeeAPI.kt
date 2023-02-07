@@ -5,14 +5,22 @@ import com.jakewharton.picnic.TextAlignment
 import com.jakewharton.picnic.table
 import ie.setu.logger
 import ie.setu.models.Employee
+import java.io.*
 import java.math.RoundingMode
 import java.text.DecimalFormat
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
 
 // Taken from https://stackoverflow.com/a/54665180
 fun roundOff(number: Double): String {
     val df = DecimalFormat("#,###,###.00")
     df.roundingMode = RoundingMode.HALF_UP
     return df.format(number)
+}
+
+fun formatDate(date: LocalDateTime): String {
+    return DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM).format(date)
 }
 
 var lastId = 0
@@ -23,7 +31,7 @@ internal fun getId(): Int {
 
 class EmployeeAPI {
 
-    private val employees = ArrayList<Employee>()
+    private var employees = ArrayList<Employee>()
 
     fun create(employee: Employee) {
         employee.employeeID = getId()
@@ -32,6 +40,7 @@ class EmployeeAPI {
     }
 
     fun update(id: Int, updatedEmployee: Employee) {
+        updatedEmployee.updatedAt = LocalDateTime.now()
         employees.replaceAll { if (it.employeeID == id) updatedEmployee else it }
         logger.debug {"Employee updated (ID: $id)"}
     }
@@ -95,6 +104,12 @@ class EmployeeAPI {
                     cell("Cycle to Work Scheme Monthly Deduction") {
                         alignment = TextAlignment.MiddleCenter
                     }
+                    cell("Updated At") {
+                        alignment = TextAlignment.MiddleCenter
+                    }
+                    cell("Created At") {
+                        alignment = TextAlignment.MiddleCenter
+                    }
                 }
             }
             body {
@@ -108,6 +123,8 @@ class EmployeeAPI {
                             cell(roundOff(it.payePercentage) + "%") {}
                             cell(roundOff(it.prsiPercentage) + "%") {}
                             cell(roundOff(it.cycleToWorkSchemeMonthlyDeduction)) {}
+                            cell(formatDate(it.updatedAt)) {}
+                            cell(formatDate(it.createdAt)) {}
                             if (index == data.size - 1) {
                                 cellStyle {
                                     borderBottom = true
@@ -124,5 +141,49 @@ class EmployeeAPI {
     }
     fun generateAllEmployeesTable(): Table {
         return employeeInfoTemplate("All Employee Information", findAll())
+    }
+
+    fun saveEmployeesToFile(): Boolean {
+        // ? https://stackoverflow.com/questions/57758314/store-custom-kotlin-data-class-to-disk
+        logger.debug {"Saving employees to file"}
+
+        try {
+            val file = FileOutputStream("employees.tmp") // here should be a full path and name
+            val outStream = ObjectOutputStream(file)
+
+            outStream.writeObject(employees)
+
+            outStream.close()
+            file.close()
+
+            logger.debug {"Saved ${employees.size} employees to file"}
+            return true
+        } catch (e: Exception) {
+            logger.debug {"Error saving employees file: ${e.message}"}
+        }
+
+        return false
+    }
+
+    fun loadEmployeesFromFile(): Boolean {
+        // ? https://stackoverflow.com/questions/57758314/store-custom-kotlin-data-class-to-disk
+        logger.debug {"Loading employees from file"}
+
+        try {
+            val file = FileInputStream("employees.tmp")
+            val obj = ObjectInputStream(file).readObject()
+            employees = obj as ArrayList<Employee>
+
+            file.close()
+
+            logger.debug {"Loaded ${employees.size} employees from file"}
+            return true
+        } catch (e: FileNotFoundException) {
+            logger.debug {"No employees file found"}
+        } catch (e: Exception) {
+            logger.debug {"Error reading employees file: ${e.message}"}
+        }
+
+        return false
     }
 }

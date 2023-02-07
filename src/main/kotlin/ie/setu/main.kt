@@ -7,6 +7,7 @@ import com.jakewharton.picnic.table
 import ie.setu.controllers.EmployeeAPI
 import ie.setu.models.Employee
 import mu.KotlinLogging
+import java.time.LocalDateTime
 
 val logger = KotlinLogging.logger {}
 
@@ -142,6 +143,7 @@ fun updateEmployee() {
 
     val updatedEmployee = generateEmployee(employee)
     updatedEmployee.employeeID = employee.employeeID
+    updatedEmployee.createdAt = employee.createdAt
 
     logger.debug { "Employee found, updating employee" }
     employees.update(employee.employeeID, updatedEmployee)
@@ -200,10 +202,27 @@ fun paySlip(){
 
 fun dummyData() {
     logger.debug { "Adding dummy data" }
-    // TODO: Add serialization to save and load data to/from file
-    employees.create(Employee("Joe", "Soap", 'm', 0, 35655.43, 31.0, 7.5, 2000.0, 25.6))
-    employees.create(Employee("Joan", "Murphy", 'f', 0, 54255.13, 32.5, 7.0, 1500.0, 55.3))
-    employees.create(Employee("Mary", "Quinn", 'f', 0, 75685.41, 40.0, 8.5, 4500.0, 0.0))
+    employees.create(Employee("Joe", "Soap", 'm', 0, 35655.43, 31.0, 7.5, 2000.0, 25.6, updatedAt = LocalDateTime.parse("2019-10-12T12:14:20.43"), createdAt = LocalDateTime.parse("2018-12-30T12:32:50.63")))
+    employees.create(Employee("Joan", "Murphy", 'f', 0, 54255.13, 32.5, 7.0, 1500.0, 55.3, updatedAt = LocalDateTime.parse("2021-05-22T19:34:21.33"), createdAt = LocalDateTime.parse("2020-02-12T19:34:20.53")))
+    employees.create(Employee("Mary", "Quinn", 'f', 0, 75685.41, 40.0, 8.5, 4500.0, 0.0, updatedAt = LocalDateTime.parse("2023-01-11T15:54:20.23"), createdAt = LocalDateTime.parse("2022-11-22T19:33:52.26")))
+}
+
+fun loadEmployees() {
+    if (employees.loadEmployeesFromFile()) {
+        println("Employees loaded successfully:")
+        println(employees.generateAllEmployeesTable().renderText(border=TextBorder.ROUNDED))
+    } else {
+        println("Error loading employees, see debug log for more info")
+    }
+}
+
+fun saveEmployees() {
+    if (employees.saveEmployeesToFile()) {
+        println("Employees saved successfully:")
+        println(employees.generateAllEmployeesTable().renderText(border=TextBorder.ROUNDED))
+    } else {
+        println("Error saving employees, see debug log for more info")
+    }
 }
 
 fun menu() : Int {
@@ -245,11 +264,27 @@ fun menu() : Int {
             }
             row {
                 cell("5")
-                cell("List All Employees")
+                cell("Print Payslip for Employee")
+            }
+            row {
+                cell("")
+                cell("")
             }
             row {
                 cell("6")
-                cell("Print Payslip for Employee")
+                cell("List All Employees")
+            }
+            row {
+                cell("")
+                cell("")
+            }
+            row {
+                cell("7")
+                cell("Load Employees from File")
+            }
+            row {
+                cell("8")
+                cell("Save Employee to File")
                 cellStyle {
                     borderBottom = true
                 }
@@ -283,13 +318,16 @@ fun start() {
 
         // TODO: Add way to view and delete in bulk
         // TODO: Add sorting, filtering, and searching
+        // TODO: When features added, update README
         when (input) {
             1 -> addEmployee()
             2 -> viewEmployee()
             3 -> updateEmployee()
             4 -> deleteEmployee()
-            5 -> listEmployees()
-            6 -> paySlip()
+            5 -> paySlip()
+            6 -> listEmployees()
+            7 -> loadEmployees()
+            8 -> saveEmployees()
             -99 -> dummyData()
             -1 -> println("Exiting App")
             else -> println("Invalid Option")
@@ -303,7 +341,9 @@ fun start() {
 fun main() {
     // TODO: Finalize README
     logger.info {"Launching Employee App"}
-    dummyData()
+    //dummyData()
+
+    employees.loadEmployeesFromFile()
 
     logger.debug { "Displaying logo" }
     println("""
