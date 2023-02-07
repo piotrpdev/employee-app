@@ -55,16 +55,12 @@ class EmployeeAPI {
         logger.debug {"Employees deleted (Multiple) (IDs: $ids)"}
     }
 
-    fun findAll(): List<Employee> {
-        return employees
-    }
-
     fun findOne(id: Int): Employee? {
         return employees.find { p -> p.employeeID == id }
     }
 
-    fun findMultiple(ids: List<Int>): List<Employee> {
-        return employees.filter { ids.contains(it.employeeID) }
+    fun findAll(): MutableList<Employee> {
+        return employees
     }
 
     private fun employeeInfoTemplate(title: String, data: List<Employee>): Table {
@@ -154,7 +150,9 @@ class EmployeeAPI {
     }
 
     fun generateAllEmployeesTable(): Table {
-        return employeeInfoTemplate("All Employee Information", findAll())
+        val sortedEmployees = employees.sortedBy { it.employeeID }
+
+        return employeeInfoTemplate("All Employee Information", sortedEmployees)
     }
 
     fun saveEmployeesToFile(): Boolean {

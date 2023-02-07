@@ -17,7 +17,15 @@ internal fun dummyData() {
     logger.debug { "Adding dummy data" }
     employees.create(Employee("Joe", "Soap", 'm', 0, 35655.43, 31.0, 7.5, 2000.0, 25.6, updatedAt = LocalDateTime.parse("2019-10-12T12:14:20.43"), createdAt = LocalDateTime.parse("2018-12-30T12:32:50.63")))
     employees.create(Employee("Joan", "Murphy", 'f', 0, 54255.13, 32.5, 7.0, 1500.0, 55.3, updatedAt = LocalDateTime.parse("2021-05-22T19:34:21.33"), createdAt = LocalDateTime.parse("2020-02-12T19:34:20.53")))
-    employees.create(Employee("Mary", "Quinn", 'f', 0, 75685.41, 40.0, 8.5, 4500.0, 0.0, updatedAt = LocalDateTime.parse("2023-01-11T15:54:20.23"), createdAt = LocalDateTime.parse("2022-11-22T19:33:52.26")))
+    employees.create(Employee("Mary", "Quinn", 'f', 0, 75685.41, 40.0, 8.5, 4500.0, 12.2, updatedAt = LocalDateTime.parse("2023-01-11T15:54:20.23"), createdAt = LocalDateTime.parse("2022-11-22T19:33:52.26")))
+    employees.create(Employee("John", "Doe", 'm', 0, 52040.02, 21.0, 8.0, 2500.0, 15.0, updatedAt = LocalDateTime.parse("2020-08-17T10:44:20.43"), createdAt = LocalDateTime.parse("2019-07-01T12:32:50.22")))
+    employees.create(Employee("Jane", "Doe", 'f', 0, 66230.23, 24.0, 7.5, 3000.0, 20.0, updatedAt = LocalDateTime.parse("2021-12-12T15:34:20.33"), createdAt = LocalDateTime.parse("2020-06-06T19:34:20.53")))
+    employees.create(Employee("Jim", "Smith", 'm', 0, 63205.43, 30.0, 7.0, 3500.0, 25.0, updatedAt = LocalDateTime.parse("2022-10-11T09:54:20.23"), createdAt = LocalDateTime.parse("2022-08-22T19:33:52.26")))
+    employees.create(Employee("James", "Andrews", 'm', 0, 68243.61, 37.0, 8.0, 2300.0, 32.6, updatedAt = LocalDateTime.parse("2021-11-21T16:24:20.53"), createdAt = LocalDateTime.parse("2021-06-30T14:32:50.23")))
+    employees.create(Employee("Roberto", "Gibbons", 'm', 0, 61231.83, 33.5, 7.5, 1500.0, 18.3, updatedAt = LocalDateTime.parse("2022-07-12T18:24:20.43"), createdAt = LocalDateTime.parse("2022-03-15T12:32:50.13")))
+    employees.create(Employee("Jack", "Sparrow", 'm', 0, 76432.19, 39.0, 9.0, 4100.0, 10.6, updatedAt = LocalDateTime.parse("2022-10-23T17:14:20.53"), createdAt = LocalDateTime.parse("2022-08-12T15:32:50.63")))
+    employees.create(Employee("Emma", "Silver", 'f', 0, 64213.09, 36.0, 8.0, 1900.0, 15.3, updatedAt = LocalDateTime.parse("2021-12-21T19:14:20.23"), createdAt = LocalDateTime.parse("2021-11-30T12:32:50.03")))
+    employees.create(Employee("Ron", "Weasley", 'm', 0, 73215.41, 34.0, 7.5, 1500.0, 20.6, updatedAt = LocalDateTime.parse("2021-09-15T16:14:20.33"), createdAt = LocalDateTime.parse("2021-07-20T12:32:50.53")))
 }
 
 internal fun getEmployeeById(): Employee? {
@@ -48,13 +56,24 @@ internal fun getEmployeeById(): Employee? {
 }
 
 internal fun getMultipleEmployeesByID(): MutableList<Employee>? {
+    logger.debug { "Trying to get multiple employees by id" }
+
     var searching = true
     val employeeList: MutableList<Employee> = ArrayList()
+
+    fun employeeInList(employee: Employee?): Boolean {
+        if (employee == null) return false
+        return employeeList.find { p -> p.employeeID == employee.employeeID } != null
+    }
 
     while (searching) {
         val employee = getEmployeeById()
 
-        if (employee != null) {
+        if (employeeInList(employee)) {
+            println("Employee already added to list.")
+        }
+
+        if (employee != null && !employeeInList(employee)) {
             employeeList.add(employee)
         }
 
@@ -66,7 +85,40 @@ internal fun getMultipleEmployeesByID(): MutableList<Employee>? {
         println()
     }
 
+    logger.debug { "Returning employee list (might be empty)." }
     return employeeList.ifEmpty { null }
+}
+
+fun getSortedEmployees(employeeList: MutableList<Employee> = employees.findAll()): List<Employee> {
+    logger.debug { "Trying to get sorted employees" }
+
+    print("Do you want to sort the employees? (y/n): ")
+    if (readln().toCharArray()[0] != 'y') {
+        logger.debug { "Not sorting employees" }
+        return employeeList
+    }
+
+    print("How do you want to sort the employees? (1 - ID, 2 - First Name, 3 - Surname, 4 - Gross Salary, 5 - Annual Bonus, 6 - PAYE %, 7 - PRSI, 8 - CtW, 9 - Updated At, 10 - Created At): ")
+
+    when (readln().toIntOrNull()) {
+        1 -> employeeList.sortBy { it.employeeID }
+        2 -> employeeList.sortBy { it.firstName }
+        3 -> employeeList.sortBy { it.surname }
+        4 -> employeeList.sortBy { it.grossSalary }
+        5 -> employeeList.sortBy { it.annualBonus }
+        6 -> employeeList.sortBy { it.payePercentage }
+        7 -> employeeList.sortBy { it.prsiPercentage }
+        8 -> employeeList.sortBy { it.cycleToWorkSchemeMonthlyDeduction }
+        9 -> employeeList.sortBy { it.updatedAt }
+        10 -> employeeList.sortBy { it.createdAt }
+        else -> {
+            println("Error: Invalid option. Please enter a valid option.")
+            return getSortedEmployees()
+        }
+    }
+
+    logger.debug { "Returning sorted employee list" }
+    return employeeList
 }
 
 fun generateEmployee(old: Employee? = null): Employee {
@@ -227,9 +279,10 @@ fun viewMultipleEmployees() {
     logger.debug { "Trying to view multiple employees" }
 
     val employeeList = getMultipleEmployeesByID() ?: return
+    val sortedEmployeeList = getSortedEmployees(employeeList)
 
     println("Here are the employees you wanted to view:")
-    println(employees.generateMultipleEmployeesTable(employeeList).renderText(border=TextBorder.ROUNDED))
+    println(employees.generateMultipleEmployeesTable(sortedEmployeeList).renderText(border=TextBorder.ROUNDED))
 }
 
 fun deleteMultipleEmployees() {
@@ -255,7 +308,9 @@ fun deleteMultipleEmployees() {
 fun listEmployees(){
     logger.debug { "Listing employees" }
 
-    println(employees.generateAllEmployeesTable().renderText(border=TextBorder.ROUNDED))
+    val sortedEmployeeList = getSortedEmployees()
+
+    println(employees.generateMultipleEmployeesTable(sortedEmployeeList).renderText(border=TextBorder.ROUNDED))
 }
 
 fun loadEmployees() {
