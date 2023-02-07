@@ -29,9 +29,12 @@ Clone the project
   git clone https://github.com/piotrpdev/employee-app
 ```
 
-Run `main.kt` in IntelliJ IDEA
+Then you can do one of the following:
 
-> Run with `-Dorg.slf4j.simpleLogger.defaultLogLevel=DEBUG` to enable debug logs
+- Run the `main.kt` file in your IDE
+- Run the `MainKt` or `MainKt (Debug)` run script in IntelliJ IDEA
+
+> Run with `-Dorg.slf4j.simpleLogger.defaultLogLevel=DEBUG` or `MainKt (Debug` to see debug logs
 
 ## Authors
 
