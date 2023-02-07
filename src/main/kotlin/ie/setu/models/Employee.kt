@@ -12,6 +12,9 @@ data class Employee(
     val grossSalary: Double, val payePercentage: Double, val prsiPercentage: Double,
     val annualBonus: Double, val cycleToWorkSchemeMonthlyDeduction: Double, var updatedAt: LocalDateTime = LocalDateTime.now(), var createdAt: LocalDateTime = LocalDateTime.now()
 ): Serializable {
+    companion object {
+        private const val serialVersionUID = 20097618L
+    }
 
     private fun getFullName(): String {
         val fullName = "$firstName $surname"
