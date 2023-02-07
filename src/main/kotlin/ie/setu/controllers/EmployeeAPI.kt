@@ -60,7 +60,7 @@ class EmployeeAPI {
     }
 
     fun findAll(): MutableList<Employee> {
-        return employees
+        return employees.toMutableList()
     }
 
     private fun employeeInfoTemplate(title: String, data: List<Employee>): Table {
@@ -184,6 +184,8 @@ class EmployeeAPI {
         try {
             val file = FileInputStream("employees.tmp")
             val obj = ObjectInputStream(file).readObject()
+
+            @Suppress("UNCHECKED_CAST") // If the file exists, it should be an ArrayList<Employee>. If not, malicious intent is the probable cause.
             employees = obj as ArrayList<Employee>
 
             file.close()

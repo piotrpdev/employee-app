@@ -15,8 +15,8 @@ Project for SETU Software Development Tools module. Made using Kotlin.
   - [x] (U) Edit employees
   - [x] (D) Remove employees
 - [x] Advanced features
-  - [ ] Search employees
-  - [ ] Sort employees
+  - [x] Search employees
+  - [x] Sort employees
   - [ ] Filter employees
   - [x] Save employees to file
   - [x] Load employees from file

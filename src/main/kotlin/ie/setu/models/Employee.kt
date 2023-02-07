@@ -1,10 +1,7 @@
 package ie.setu.models
 
-import com.jakewharton.picnic.BorderStyle
 import com.jakewharton.picnic.Table
 import com.jakewharton.picnic.TextAlignment
-import java.math.RoundingMode
-import java.text.DecimalFormat
 import com.jakewharton.picnic.table
 import ie.setu.controllers.roundOff
 import java.io.Serializable
@@ -16,7 +13,7 @@ data class Employee(
     val annualBonus: Double, val cycleToWorkSchemeMonthlyDeduction: Double, var updatedAt: LocalDateTime = LocalDateTime.now(), var createdAt: LocalDateTime = LocalDateTime.now()
 ): Serializable {
 
-    fun getFullName(): String {
+    private fun getFullName(): String {
         val fullName = "$firstName $surname"
 
         return when (gender) {

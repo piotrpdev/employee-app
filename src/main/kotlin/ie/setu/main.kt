@@ -30,6 +30,7 @@ internal fun dummyData() {
 
 internal fun getEmployeeById(): Employee? {
     logger.debug { "Trying to get employee by id" }
+
     print("Enter the employee id to search by: ")
     var employeeID = readln().toIntOrNull()
     while (employeeID == null) {
@@ -40,7 +41,6 @@ internal fun getEmployeeById(): Employee? {
     logger.debug { "Searching for employee with id $employeeID" }
     val employee = employees.findOne(employeeID)
 
-    // TODO: Test this
     if (employee == null) {
         logger.debug { "Employee not found with id $employeeID" }
         println("Employee not found with that ID.")
@@ -57,6 +57,13 @@ internal fun getEmployeeById(): Employee? {
 
 internal fun getMultipleEmployeesByID(): MutableList<Employee>? {
     logger.debug { "Trying to get multiple employees by id" }
+
+    print("Do you want to search for multiple employees using their ID? (y/n): ")
+    val searchMultiple = readln().toCharArray().getOrNull(0)
+    if (searchMultiple != 'y') {
+        logger.debug { "User does not want to search for multiple employees using ID" }
+        return employees.findAll()
+    }
 
     var searching = true
     val employeeList: MutableList<Employee> = ArrayList()
@@ -77,7 +84,7 @@ internal fun getMultipleEmployeesByID(): MutableList<Employee>? {
             employeeList.add(employee)
         }
 
-        print("Do you want to add another employee to the list? (y/n): ")
+        print("Do you want to add another employee to the list using their ID? (y/n): ")
         val searchAgain = readln().toCharArray().getOrNull(0)
         if (searchAgain != 'y') {
             searching = false
@@ -89,7 +96,112 @@ internal fun getMultipleEmployeesByID(): MutableList<Employee>? {
     return employeeList.ifEmpty { null }
 }
 
-fun getSortedEmployees(employeeList: MutableList<Employee> = employees.findAll()): List<Employee> {
+fun getFilteredEmployees(employeeList: MutableList<Employee>): MutableList<Employee>? {
+    logger.debug { "Trying to get filtered employees" }
+
+    print("Do you want to filter the employees? (y/n): ")
+    if (readln().toCharArray()[0] != 'y') {
+        logger.debug { "Not filtering employees" }
+        return employeeList
+    }
+
+    var filtering = true
+    while (filtering) {
+        print("How do you want to filter the employees? (1 - ID, 2 - First Name, 3 - Surname, 4 - Gross Salary, 5 - Annual Bonus, 6 - PAYE %, 7 - PRSI, 8 - CtW, 9 - Updated At, 10 - Created At): ")
+        when (readln().toIntOrNull()) {
+            1 -> {
+                print("Enter the employee id to filter by: ")
+                var employeeID = readln().toIntOrNull()
+                while (employeeID == null) {
+                    println("Error: employee id must be a valid number. Please enter a valid employee id.")
+                    employeeID = readln().toIntOrNull()
+                }
+                employeeList.removeIf { it.employeeID != employeeID }
+            }
+            2 -> {
+                print("Enter the employee first name to filter by: ")
+                val firstName = readln()
+                employeeList.removeIf { it.firstName != firstName }
+            }
+            3 -> {
+                print("Enter the employee surname to filter by: ")
+                val surname = readln()
+                employeeList.removeIf { it.surname != surname }
+            }
+            4 -> {
+                print("Enter the employee gross salary to filter by: ")
+                var grossSalary = readln().toDoubleOrNull()
+                while (grossSalary == null) {
+                    println("Error: gross salary must be a valid number. Please enter a valid gross salary.")
+                    grossSalary = readln().toDoubleOrNull()
+                }
+                employeeList.removeIf { it.grossSalary != grossSalary }
+            }
+            5 -> {
+                print("Enter the employee annual bonus to filter by: ")
+                var annualBonus = readln().toDoubleOrNull()
+                while (annualBonus == null) {
+                    println("Error: annual bonus must be a valid number. Please enter a valid annual bonus.")
+                    annualBonus = readln().toDoubleOrNull()
+                }
+                employeeList.removeIf { it.annualBonus != annualBonus }
+            }
+            6 -> {
+                print("Enter the employee PAYE % to filter by: ")
+                var paye = readln().toDoubleOrNull()
+                while (paye == null) {
+                    println("Error: PAYE % must be a valid number. Please enter a valid PAYE %.")
+                    paye = readln().toDoubleOrNull()
+                }
+                employeeList.removeIf { it.payePercentage != paye }
+            }
+            7 -> {
+                print("Enter the employee PRSI to filter by: ")
+                var prsi = readln().toDoubleOrNull()
+                while (prsi == null) {
+                    println("Error: PRSI must be a valid number. Please enter a valid PRSI.")
+                    prsi = readln().toDoubleOrNull()
+                }
+                employeeList.removeIf { it.prsiPercentage != prsi }
+            }
+            8 -> {
+                print("Enter the employee CtW to filter by: ")
+                var ctw = readln().toDoubleOrNull()
+                while (ctw == null) {
+                    println("Error: CtW must be a valid number. Please enter a valid CtW.")
+                    ctw = readln().toDoubleOrNull()
+                }
+                employeeList.removeIf { it.cycleToWorkSchemeMonthlyDeduction != ctw }
+            }
+            9 -> {
+                print("Enter the employee updated at to filter by: ")
+                val updatedAt = readln()
+                employeeList.removeIf { it.updatedAt.compareTo(LocalDateTime.parse(updatedAt)) != 0 }
+            }
+            10 -> {
+                print("Enter the employee created at to filter by: ")
+                val createdAt = readln()
+                employeeList.removeIf { it.createdAt.compareTo(LocalDateTime.parse(createdAt)) != 0 }
+            }
+            else -> {
+                println("Error: invalid option. Please enter a valid option.")
+                continue
+            }
+        }
+
+        print("Do you want to filter the employees again? (y/n): ")
+        val filterAgain = readln().toCharArray().getOrNull(0)
+        if (filterAgain != 'y') {
+            filtering = false
+        }
+        println()
+    }
+
+    logger.debug { "Returning filtered employee list (might be empty)." }
+    return employeeList.ifEmpty { null }
+}
+
+fun getSortedEmployees(employeeList: MutableList<Employee> = employees.findAll()): MutableList<Employee> {
     logger.debug { "Trying to get sorted employees" }
 
     print("Do you want to sort the employees? (y/n): ")
@@ -117,14 +229,13 @@ fun getSortedEmployees(employeeList: MutableList<Employee> = employees.findAll()
         }
     }
 
-    logger.debug { "Returning sorted employee list" }
+    logger.debug { "Returning sorted employee list (might be empty)." }
     return employeeList
 }
 
 fun generateEmployee(old: Employee? = null): Employee {
     logger.debug { "Generating employee" }
 
-    // TODO: Test properly to make sure this works
     // ? Trying to update with an invalid value just keeps the old one
     // def = default; shortened to save space
     fun def(prop: Any?) = if (old != null) " (${prop})" else ""
@@ -221,6 +332,8 @@ fun generateEmployee(old: Employee? = null): Employee {
 }
 
 fun addEmployee() {
+    logger.debug { "Trying to add employee" }
+
     val employee = generateEmployee()
 
     logger.debug { "Adding employee: $employee" }
@@ -275,11 +388,12 @@ fun paySlip(){
     println(employee.getNicerPayslip().renderText(border=TextBorder.ROUNDED))
 }
 
-fun viewMultipleEmployees() {
-    logger.debug { "Trying to view multiple employees" }
+fun searchEmployees() {
+    logger.debug { "Trying to search employees" }
 
     val employeeList = getMultipleEmployeesByID() ?: return
-    val sortedEmployeeList = getSortedEmployees(employeeList)
+    val filteredEmployeeList = getFilteredEmployees(employeeList) ?: return
+    val sortedEmployeeList = getSortedEmployees(filteredEmployeeList)
 
     println("Here are the employees you wanted to view:")
     println(employees.generateMultipleEmployeesTable(sortedEmployeeList).renderText(border=TextBorder.ROUNDED))
@@ -333,7 +447,6 @@ fun saveEmployees() {
 
 fun menu() : Int {
     logger.debug { "Displaying menu" }
-    // TODO: Maybe extract to a separate file
     println(table {
         cellStyle {
             alignment = TextAlignment.MiddleRight
@@ -378,7 +491,7 @@ fun menu() : Int {
             }
             row {
                 cell("6")
-                cell("View Multiple Employees")
+                cell("Search Employees")
             }
             row {
                 cell("7")
@@ -434,15 +547,13 @@ fun start() {
 
         logger.debug {"User choice made"}
 
-        // TODO: Add sorting, filtering, and searching
-        // TODO: When features added, update README
         when (input) {
             1 -> addEmployee()
             2 -> viewEmployee()
             3 -> updateEmployee()
             4 -> deleteEmployee()
             5 -> paySlip()
-            6 -> viewMultipleEmployees()
+            6 -> searchEmployees()
             7 -> deleteMultipleEmployees()
             8 -> listEmployees()
             9 -> loadEmployees()
@@ -457,8 +568,7 @@ fun start() {
     logger.info {"Exiting Employee App"}
 }
 
-fun main() {
-    // TODO: Finalize README
+fun main(args: Array<String>) {
     logger.info {"Launching Employee App"}
     //dummyData()
 
