@@ -13,16 +13,60 @@ val logger = KotlinLogging.logger {}
 
 var employees = EmployeeAPI()
 
-fun listEmployees(){
-    logger.debug { "Listing employees" }
-
-    println(employees.generateAllEmployeesTable().renderText(border=TextBorder.ROUNDED))
+internal fun dummyData() {
+    logger.debug { "Adding dummy data" }
+    employees.create(Employee("Joe", "Soap", 'm', 0, 35655.43, 31.0, 7.5, 2000.0, 25.6, updatedAt = LocalDateTime.parse("2019-10-12T12:14:20.43"), createdAt = LocalDateTime.parse("2018-12-30T12:32:50.63")))
+    employees.create(Employee("Joan", "Murphy", 'f', 0, 54255.13, 32.5, 7.0, 1500.0, 55.3, updatedAt = LocalDateTime.parse("2021-05-22T19:34:21.33"), createdAt = LocalDateTime.parse("2020-02-12T19:34:20.53")))
+    employees.create(Employee("Mary", "Quinn", 'f', 0, 75685.41, 40.0, 8.5, 4500.0, 0.0, updatedAt = LocalDateTime.parse("2023-01-11T15:54:20.23"), createdAt = LocalDateTime.parse("2022-11-22T19:33:52.26")))
 }
 
-fun viewEmployee() {
-    logger.debug { "Searching for employees" }
+internal fun getEmployeeById(): Employee? {
+    logger.debug { "Trying to get employee by id" }
+    print("Enter the employee id to search by: ")
+    var employeeID = readln().toIntOrNull()
+    while (employeeID == null) {
+        println("Error: employee id must be a valid number. Please enter a valid employee id.")
+        employeeID = readln().toIntOrNull()
+    }
 
-    getEmployeeById() ?: return
+    logger.debug { "Searching for employee with id $employeeID" }
+    val employee = employees.findOne(employeeID)
+
+    // TODO: Test this
+    if (employee == null) {
+        logger.debug { "Employee not found with id $employeeID" }
+        println("Employee not found with that ID.")
+        return null
+    }
+
+    logger.debug { "Employee found: $employee" }
+    logger.debug { "Displaying employee" }
+    println("\nThe following employee was found:")
+    println(employees.generateEmployeeTable(employee).renderText(border=TextBorder.ROUNDED))
+
+    return employee
+}
+
+internal fun getMultipleEmployeesByID(): MutableList<Employee>? {
+    var searching = true
+    val employeeList: MutableList<Employee> = ArrayList()
+
+    while (searching) {
+        val employee = getEmployeeById()
+
+        if (employee != null) {
+            employeeList.add(employee)
+        }
+
+        print("Do you want to add another employee to the list? (y/n): ")
+        val searchAgain = readln().toCharArray().getOrNull(0)
+        if (searchAgain != 'y') {
+            searching = false
+        }
+        println()
+    }
+
+    return employeeList.ifEmpty { null }
 }
 
 fun generateEmployee(old: Employee? = null): Employee {
@@ -134,6 +178,12 @@ fun addEmployee() {
     println(employees.generateEmployeeTable(employee).renderText(border=TextBorder.ROUNDED))
 }
 
+fun viewEmployee() {
+    logger.debug { "Searching for employees" }
+
+    getEmployeeById() ?: return
+}
+
 fun updateEmployee() {
     logger.debug { "Trying to update employee" }
 
@@ -163,33 +213,6 @@ fun deleteEmployee() {
     println("\nThe employee was deleted successfully:\n")
 }
 
-internal fun getEmployeeById(): Employee? {
-    logger.debug { "Trying to get employee by id" }
-    print("Enter the employee id to search by: ")
-    var employeeID = readln().toIntOrNull()
-    while (employeeID == null) {
-        println("Error: employee id must be a valid number. Please enter a valid employee id.")
-        employeeID = readln().toIntOrNull()
-    }
-
-    logger.debug { "Searching for employee with id $employeeID" }
-    val employee = employees.findOne(employeeID)
-
-    // TODO: Test this
-    if (employee == null) {
-        logger.debug { "Employee not found with id $employeeID" }
-        println("Employee not found with that ID.")
-        return null
-    }
-
-    logger.debug { "Employee found: $employee" }
-    logger.debug { "Displaying employee" }
-    println("\nThe following employee was found:")
-    println(employees.generateEmployeeTable(employee).renderText(border=TextBorder.ROUNDED))
-
-    return employee
-}
-
 fun paySlip(){
     logger.debug { "Trying to generate payslip" }
     val employee = getEmployeeById() ?: return
@@ -200,11 +223,39 @@ fun paySlip(){
     println(employee.getNicerPayslip().renderText(border=TextBorder.ROUNDED))
 }
 
-fun dummyData() {
-    logger.debug { "Adding dummy data" }
-    employees.create(Employee("Joe", "Soap", 'm', 0, 35655.43, 31.0, 7.5, 2000.0, 25.6, updatedAt = LocalDateTime.parse("2019-10-12T12:14:20.43"), createdAt = LocalDateTime.parse("2018-12-30T12:32:50.63")))
-    employees.create(Employee("Joan", "Murphy", 'f', 0, 54255.13, 32.5, 7.0, 1500.0, 55.3, updatedAt = LocalDateTime.parse("2021-05-22T19:34:21.33"), createdAt = LocalDateTime.parse("2020-02-12T19:34:20.53")))
-    employees.create(Employee("Mary", "Quinn", 'f', 0, 75685.41, 40.0, 8.5, 4500.0, 0.0, updatedAt = LocalDateTime.parse("2023-01-11T15:54:20.23"), createdAt = LocalDateTime.parse("2022-11-22T19:33:52.26")))
+fun viewMultipleEmployees() {
+    logger.debug { "Trying to view multiple employees" }
+
+    val employeeList = getMultipleEmployeesByID() ?: return
+
+    println("Here are the employees you wanted to view:")
+    println(employees.generateMultipleEmployeesTable(employeeList).renderText(border=TextBorder.ROUNDED))
+}
+
+fun deleteMultipleEmployees() {
+    logger.debug { "Trying to delete multiple employees" }
+
+    val employeeList = getMultipleEmployeesByID() ?: return
+
+    println("Here are the employees you wanted to delete:")
+    println(employees.generateMultipleEmployeesTable(employeeList).renderText(border=TextBorder.ROUNDED))
+
+    print("Are you sure you want to delete these employees? (y/n): ")
+    val delete = readln().toCharArray().getOrNull(0)
+    if (delete != 'y') {
+        println("Employees not deleted.")
+        return
+    }
+
+    logger.debug { "Deleting multiple employees" }
+    employees.deleteMultiple(employeeList.map { it.employeeID })
+    println("Employees deleted.")
+}
+
+fun listEmployees(){
+    logger.debug { "Listing employees" }
+
+    println(employees.generateAllEmployeesTable().renderText(border=TextBorder.ROUNDED))
 }
 
 fun loadEmployees() {
@@ -272,6 +323,18 @@ fun menu() : Int {
             }
             row {
                 cell("6")
+                cell("View Multiple Employees")
+            }
+            row {
+                cell("7")
+                cell("Delete Multiple Employees")
+            }
+            row {
+                cell("")
+                cell("")
+            }
+            row {
+                cell("8")
                 cell("List All Employees")
             }
             row {
@@ -279,11 +342,11 @@ fun menu() : Int {
                 cell("")
             }
             row {
-                cell("7")
+                cell("9")
                 cell("Load Employees from File")
             }
             row {
-                cell("8")
+                cell("10")
                 cell("Save Employee to File")
                 cellStyle {
                     borderBottom = true
@@ -316,7 +379,6 @@ fun start() {
 
         logger.debug {"User choice made"}
 
-        // TODO: Add way to view and delete in bulk
         // TODO: Add sorting, filtering, and searching
         // TODO: When features added, update README
         when (input) {
@@ -325,9 +387,11 @@ fun start() {
             3 -> updateEmployee()
             4 -> deleteEmployee()
             5 -> paySlip()
-            6 -> listEmployees()
-            7 -> loadEmployees()
-            8 -> saveEmployees()
+            6 -> viewMultipleEmployees()
+            7 -> deleteMultipleEmployees()
+            8 -> listEmployees()
+            9 -> loadEmployees()
+            10 -> saveEmployees()
             -99 -> dummyData()
             -1 -> println("Exiting App")
             else -> println("Invalid Option")

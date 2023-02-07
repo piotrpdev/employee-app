@@ -50,12 +50,21 @@ class EmployeeAPI {
         logger.debug {"Employee deleted (ID: $id)"}
     }
 
+    fun deleteMultiple(ids: List<Int>) {
+        employees.removeIf { ids.contains(it.employeeID) }
+        logger.debug {"Employees deleted (Multiple) (IDs: $ids)"}
+    }
+
     fun findAll(): List<Employee> {
         return employees
     }
 
     fun findOne(id: Int): Employee? {
         return employees.find { p -> p.employeeID == id }
+    }
+
+    fun findMultiple(ids: List<Int>): List<Employee> {
+        return employees.filter { ids.contains(it.employeeID) }
     }
 
     private fun employeeInfoTemplate(title: String, data: List<Employee>): Table {
@@ -139,6 +148,11 @@ class EmployeeAPI {
     fun generateEmployeeTable(employee: Employee): Table {
         return employeeInfoTemplate("Employee Information", listOf(employee))
     }
+
+    fun generateMultipleEmployeesTable(employees: List<Employee>): Table {
+        return employeeInfoTemplate("Multiple Employee Information", employees)
+    }
+
     fun generateAllEmployeesTable(): Table {
         return employeeInfoTemplate("All Employee Information", findAll())
     }
