@@ -161,16 +161,12 @@ class EmployeeAPI {
         logger.debug {"Saving employees to file"}
 
         try {
-            val file = FileOutputStream("employees.tmp") // here should be a full path and name
-            val outStream = ObjectOutputStream(file)
+            ObjectOutputStream(FileOutputStream("employees.tmp")).use {
+                it.writeObject(employees)
 
-            outStream.writeObject(employees)
-
-            outStream.close()
-            file.close()
-
-            logger.debug {"Saved ${employees.size} employees to file"}
-            return true
+                logger.debug {"Saved ${employees.size} employees to file"}
+                return true
+            }
         } catch (e: Exception) {
             logger.debug {"Error saving employees file: ${e.message}"}
         }
@@ -183,17 +179,14 @@ class EmployeeAPI {
         logger.debug {"Loading employees from file"}
 
         try {
-            val file = FileInputStream("employees.tmp")
-            val obj = ObjectInputStream(file).readObject()
+            ObjectInputStream(FileInputStream("employees.tmp")).use { it ->
+                @Suppress("UNCHECKED_CAST") // https://stackoverflow.com/questions/64041447/in-kotlin-is-there-a-safe-way-to-do-objectinputstream-readobject
+                employees = it.readObject() as ArrayList<Employee>
+                lastId = employees.maxWith(Comparator.comparingInt {it.employeeID}).employeeID + 1
 
-            @Suppress("UNCHECKED_CAST") // If the file exists, it should be an ArrayList<Employee>. If not, malicious intent is the probable cause.
-            employees = obj as ArrayList<Employee>
-            lastId = employees.size
-
-            file.close()
-
-            logger.debug {"Loaded ${employees.size} employees from file"}
-            return true
+                logger.debug {"Loaded ${employees.size} employees from file"}
+                return true
+            }
         } catch (e: FileNotFoundException) {
             logger.debug {"No employees file found"}
         } catch (e: Exception) {

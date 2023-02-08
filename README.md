@@ -20,6 +20,7 @@ Project for SETU Software Development Tools module. Made using Kotlin.
   - [ ] Filter employees
   - [x] Save employees to file
   - [x] Load employees from file
+- [x] Nice table-based UI courtesy of [Picnic](https://github.com/JakeWharton/picnic)
 
 ## Run Locally
 
@@ -34,7 +35,7 @@ Then you can do one of the following:
 - Run the `main.kt` file in your IDE
 - Run the `MainKt` or `MainKt (Debug)` run script in IntelliJ IDEA
 
-> Run with `-Dorg.slf4j.simpleLogger.defaultLogLevel=DEBUG` or `MainKt (Debug` to see debug logs
+> Run with `-Dorg.slf4j.simpleLogger.defaultLogLevel=DEBUG` or `MainKt (Debug)` to see debug logs
 
 ## Authors
 
